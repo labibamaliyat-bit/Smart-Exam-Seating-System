@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="intro">
+  <h1>Seating Arrangement</h1>
+  <p>Generated student allocations, grouped by exam hall and seat number.</p>
+</section>
+
+<div class="toolbar">
+  <a class="button secondary" href="/">Back to Dashboard</a>
+  <form action="/reset" method="post">
+    <button class="danger" type="submit">Reset Allocation</button>
+  </form>
+</div>
+
+
+<div class="stats">
+    <div class="stat">
+        <span>Total Allocated</span>
+        <strong>{{ rows|length }}</strong>
+    </div>
+
+    <div class="stat">
+        <span>Subject Conflicts</span>
+        <strong>{{ conflict_score }}</strong>
+    </div>
+
+    <div class="stat">
+        <span>Optimization Status</span>
+        <strong>
+            {% if conflict_score == 0 %}
+                Optimized
+            {% else %}
+                Improved
+            {% endif %}
+        </strong>
+    </div>
+</div>
+
+
+<!-- Visual Exam Hall Seating Chart -->
+
+<style>
+.seating-section {
+    margin: 25px 0;
+}
+
+.hall-chart {
+    background: white;
+    padding: 22px;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    margin-bottom: 22px;
+}
+
+.seat-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(65px, 1fr));
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.seat-box {
+    background: #eef2ff;
+    border: 1px solid #c7d2fe;
+    border-radius: 10px;
+    padding: 14px 5px;
+    text-align: center;
+}
+
+.seat-box strong {
+    display: block;
+    color: #4338ca;
+    font-size: 16px;
+}
+
+.seat-box span {
+    display: block;
+    margin-top: 5px;
+    font-size: 12px;
+    color: #475569;
+}
+
+.seat-box small {
+    display: block;
+    margin-top: 4px;
+    color: #64748b;
+}
+
+@media (max-width: 600px) {
+    .seat-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media print {
+    .no-print {
+        display: none !important;
+    }
+
+    .hall-chart {
+        break-inside: avoid;
+    }
+}
+</style>
+
+<div class="seating-section">
+
+    <h2>Visual Seating Arrangement</h2>
+
+    {% for hall_name, hall_rows in rows|groupby('hall_name') %}
+
+    <div class="hall-chart">
+
+        <h3>{{ hall_name }}</h3>
+
+        <p>Allocated Students: {{ hall_rows|length }}</p>
+
+        <div class="seat-grid">
+
+            {% for student in hall_rows %}
+
+            <div class="seat-box">
+
+                <strong>S{{ "%02d"|format(student.seat_no) }}</strong>
+
+                <span>{{ student.name }}</span>
+
+                <small>ID: {{ student.student_no }}</small>
+
+                <small>{{ student.subject }}</small>
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+    {% endfor %}
+
+</div>
+
+<div class="no-print">
+    <button onclick="window.print()">
+        Print Seating Chart
+    </button>
+</div>
+
+<section class="panel">
+  {% if rows %}
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Hall</th><th>Seat</th><th>Student ID</th><th>Name</th><th>Subject</th></tr>
+      </thead>
+      <tbody>
+      {% for row in rows %}
+        <tr>
+          <td>{{ row.hall_name }}</td>
+          <td><span class="seat">S{{ "%02d"|format(row.seat_no) }}</span></td>
+          <td>{{ row.student_no }}</td>
+          <td>{{ row.name }}</td>
+          <td><span class="subject">{{ row.subject }}</span></td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+    <p>No seating allocation is available yet. Return to the dashboard and generate a plan.</p>
+  {% endif %}
+</section>
+{% endblock %}

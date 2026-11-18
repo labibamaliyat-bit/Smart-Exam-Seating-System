@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="intro">
+  <h1>Exam seating, made simple.</h1>
+  <p>Add students and halls, then generate an optimized seating plan.</p>
+</section>
+
+<div class="stats">
+  <div class="stat"><span>Students</span><strong>{{ students|length }}</strong></div>
+  <div class="stat"><span>Halls</span><strong>{{ halls|length }}</strong></div>
+  <div class="stat"><span>Total Capacity</span><strong>{{ total_capacity }}</strong></div>
+  <div class="stat"><span>Allocated Seats</span><strong>{{ allocation_count }}</strong></div>
+</div>
+
+<div class="grid">
+  <section class="panel">
+    <h2>Add Student</h2>
+    <form action="/students/add" method="post" class="form">
+      <label>Student ID<input name="student_no" placeholder="e.g. 2024001" required></label>
+      <label>Full Name<input name="name" placeholder="Student name" required></label>
+      <label>Subject / Course<input name="subject" placeholder="e.g. CSE101" required></label>
+      <button type="submit">Add Student</button>
+    </form>
+
+    <h3>Student List</h3>
+    {% if students %}
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>ID</th><th>Name</th><th>Subject</th><th>Action</th></tr></thead>
+        <tbody>
+        {% for student in students %}
+          <tr>
+            <td>{{ student.student_no }}</td>
+            <td>{{ student.name }}</td>
+            <td>{{ student.subject }}</td>
+            <td>
+              <form action="/students/{{ student.id }}/delete" method="post">
+                <button class="small danger" type="submit">Delete</button>
+              </form>
+            </td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+      <p class="muted">No students have been added yet.</p>
+    {% endif %}
+  </section>
+
+  <section class="panel">
+    <h2>Add Exam Hall</h2>
+    <form action="/halls/add" method="post" class="form">
+      <label>Hall Name<input name="name" placeholder="e.g. Hall A" required></label>
+      <label>Seat Capacity<input name="capacity" type="number" min="1" placeholder="e.g. 30" required></label>
+      <button type="submit">Add Hall</button>
+    </form>
+
+    <h3>Hall List</h3>
+    {% if halls %}
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Hall</th><th>Capacity</th><th>Action</th></tr></thead>
+        <tbody>
+        {% for hall in halls %}
+          <tr>
+            <td>{{ hall.name }}</td>
+            <td>{{ hall.capacity }}</td>
+            <td>
+              <form action="/halls/{{ hall.id }}/delete" method="post">
+                <button class="small danger" type="submit">Delete</button>
+              </form>
+            </td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+      <p class="muted">No halls have been added yet.</p>
+    {% endif %}
+  </section>
+</div>
+
+<section class="panel action-panel">
+  <div>
+    <h2>Generate Seating Plan</h2>
+    <p class="muted">The optimization heuristic attempts to distribute subjects across consecutive seat numbers.</p>
+  </div>
+  <form action="/generate" method="post">
+    <button class="primary" type="submit">Generate Seating Plan</button>
+  </form>
+</section>
+{% endblock %}
