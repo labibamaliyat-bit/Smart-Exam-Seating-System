@@ -1,0 +1,297 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="dashboard">
+
+    <!-- Dashboard Header -->
+    <section class="dashboard-header">
+        <div>
+            <span class="eyebrow">ACADEMIC MANAGEMENT</span>
+            <h1>Exam Seating Dashboard</h1>
+            <p>Manage students, examination halls and seating arrangements.</p>
+        </div>
+        <div class="header-badge">
+            <span class="status-dot"></span>
+            System Active
+        </div>
+    </section>
+
+    <!-- Statistics -->
+    <section class="stats">
+
+        <div class="stat stat-students">
+            <div class="stat-top">
+                <span class="stat-label">Total Students</span>
+                <span class="stat-icon">👨‍🎓</span>
+            </div>
+            <strong>{{ students|length }}</strong>
+            <span class="stat-description">Registered students</span>
+        </div>
+
+        <div class="stat stat-halls">
+            <div class="stat-top">
+                <span class="stat-label">Exam Halls</span>
+                <span class="stat-icon">🏫</span>
+            </div>
+            <strong>{{ halls|length }}</strong>
+            <span class="stat-description">Available examination halls</span>
+        </div>
+
+        <div class="stat stat-capacity">
+            <div class="stat-top">
+                <span class="stat-label">Total Capacity</span>
+                <span class="stat-icon">🪑</span>
+            </div>
+            <strong>{{ total_capacity }}</strong>
+            <span class="stat-description">Total available seats</span>
+        </div>
+
+        <div class="stat stat-allocated">
+            <div class="stat-top">
+                <span class="stat-label">Allocated Seats</span>
+                <span class="stat-icon">📋</span>
+            </div>
+            <strong>{{ allocation_count }}</strong>
+            <span class="stat-description">Currently allocated</span>
+        </div>
+
+    </section>
+
+    <!-- Management Sections -->
+    <section class="management-grid">
+
+        <!-- Student Management -->
+        <div class="panel">
+
+            <div class="panel-header">
+                <div>
+                    <span class="panel-icon">👨‍🎓</span>
+                    <h2>Student Management</h2>
+                    <p>Add and manage registered students.</p>
+                </div>
+            </div>
+
+            <form action="/students/add" method="post" class="form">
+
+                <label>
+                    Student ID
+                    <input
+                        name="student_no"
+                        placeholder="e.g. 2024001"
+                        required
+                    >
+                </label>
+
+                <label>
+                    Full Name
+                    <input
+                        name="name"
+                        placeholder="Enter student's full name"
+                        required
+                    >
+                </label>
+
+                <label>
+                    Subject / Course
+                    <input
+                        name="subject"
+                        placeholder="e.g. CSE101"
+                        required
+                    >
+                </label>
+
+                <button type="submit" class="submit-button">
+                    + Add Student
+                </button>
+
+            </form>
+
+            <div class="section-divider"></div>
+
+            <div class="list-header">
+                <h3>Student List</h3>
+                <span class="count-badge">{{ students|length }} Students</span>
+            </div>
+
+            {% if students %}
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Student ID</th>
+                            <th>Name</th>
+                            <th>Subject</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for s in students %}
+                        <tr>
+                            <td class="student-id">{{ s.student_no }}</td>
+                            <td>{{ s.name }}</td>
+                            <td>
+                                <span class="subject-badge">
+                                    {{ s.subject }}
+                                </span>
+                            </td>
+                            <td>
+                                <form
+                                    action="/students/{{ s.id }}/delete"
+                                    method="post"
+                                >
+                                    <button
+                                        class="small danger"
+                                        type="submit"
+                                    >
+                                        Delete
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% else %}
+
+            <div class="empty-state">
+                <span>👨‍🎓</span>
+                <p>No students added yet.</p>
+                <small>Add your first student using the form above.</small>
+            </div>
+
+            {% endif %}
+
+        </div>
+
+        <!-- Hall Management -->
+        <div class="panel">
+
+            <div class="panel-header">
+                <div>
+                    <span class="panel-icon">🏫</span>
+                    <h2>Hall Management</h2>
+                    <p>Add and manage examination halls.</p>
+                </div>
+            </div>
+
+            <form action="/halls/add" method="post" class="form">
+
+                <label>
+                    Hall Name
+                    <input
+                        name="name"
+                        placeholder="e.g. Hall A"
+                        required
+                    >
+                </label>
+
+                <label>
+                    Seat Capacity
+                    <input
+                        name="capacity"
+                        type="number"
+                        min="1"
+                        placeholder="Enter number of seats"
+                        required
+                    >
+                </label>
+
+                <button type="submit" class="submit-button">
+                    + Add Exam Hall
+                </button>
+
+            </form>
+
+            <div class="section-divider"></div>
+
+            <div class="list-header">
+                <h3>Hall List</h3>
+                <span class="count-badge">{{ halls|length }} Halls</span>
+            </div>
+
+            {% if halls %}
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Hall Name</th>
+                            <th>Capacity</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for h in halls %}
+                        <tr>
+                            <td>{{ h.name }}</td>
+                            <td>
+                                <span class="capacity-badge">
+                                    🪑 {{ h.capacity }}
+                                </span>
+                            </td>
+                            <td>
+                                <form
+                                    action="/halls/{{ h.id }}/delete"
+                                    method="post"
+                                >
+                                    <button
+                                        class="small danger"
+                                        type="submit"
+                                    >
+                                        Delete
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% else %}
+
+            <div class="empty-state">
+                <span>🏫</span>
+                <p>No examination halls added yet.</p>
+                <small>Add an examination hall using the form above.</small>
+            </div>
+
+            {% endif %}
+
+        </div>
+
+    </section>
+
+    <!-- Seating Plan -->
+    <section class="panel seating-panel">
+
+        <div class="seating-content">
+            <div class="seating-icon">🪑</div>
+
+            <div>
+                <span class="eyebrow">AUTOMATED ALLOCATION</span>
+                <h2>Generate Seating Plan</h2>
+                <p>
+                    Automatically distribute students across available halls
+                    using the seating optimization algorithm.
+                </p>
+            </div>
+        </div>
+
+        <form action="/generate" method="post">
+            <button class="generate-button" type="submit">
+                Generate Seating Plan
+                <span>→</span>
+            </button>
+        </form>
+
+    </section>
+
+</div>
+
+{% endblock %}

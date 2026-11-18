@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="intro"><h1>Seating arrangement</h1><p>Generated student allocations, grouped by hall and seat.</p></section>
+<div class="toolbar"><a class="button secondary" href="/">← Back to dashboard</a><form action="/reset" method="post"><button class="danger" type="submit">Reset allocation</button></form></div>
+<section class="panel">
+{% if rows %}<div class="table-wrap"><table><thead><tr><th>Hall</th><th>Seat</th><th>Student ID</th><th>Name</th><th>Subject</th></tr></thead><tbody>
+{% for r in rows %}<tr><td>{{ r.hall_name }}</td><td><span class="seat">S{{ "%02d"|format(r.seat_no) }}</span></td><td>{{ r.student_no }}</td><td>{{ r.name }}</td><td><span class="subject">{{ r.subject }}</span></td></tr>{% endfor %}
+</tbody></table></div>{% else %}<p>No allocation yet. Go back and generate a seating plan.</p>{% endif %}
+</section>
+{% endblock %}
